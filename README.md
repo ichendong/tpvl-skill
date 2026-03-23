@@ -1,0 +1,53 @@
+# TPVL Skill - 台灣職業排球聯盟資訊查詢 🏐
+
+OpenClaw skill for querying Taiwan Professional Volleyball League (TPVL) game results, schedules, standings, and player data.
+
+## Features
+
+- ⚾ Game results with scores and set counts
+- 📅 Schedule query (upcoming and past)
+- 🏆 Standings (wins, losses, win rate, set records)
+- 📊 Player stats (placeholder - TPVL website not yet available)
+
+## Data Source
+
+TPVL official website ([tpvl.tw](https://tpvl.tw/)) via `__NEXT_DATA__` SSR JSON.
+No API key required.
+
+## Quick Start
+
+```bash
+# Game results
+uv run scripts/tpvl_games.py --limit 10
+uv run scripts/tpvl_games.py --team 台中 --output text
+
+# Schedule
+uv run scripts/tpvl_schedule.py --limit 5
+uv run scripts/tpvl_schedule.py --team 桃園 --output text
+
+# Standings
+uv run scripts/tpvl_standings.py
+uv run scripts/tpvl_standings.py --output text
+
+# Player stats (placeholder)
+uv run scripts/tpvl_stats.py --top 10
+```
+
+## Installation
+
+```bash
+clawhub install tpvl
+```
+
+## Teams
+
+| Team | Chinese |
+|------|---------|
+| Taichung Lien Zhuang | 臺中連莊 |
+| TSG Hawks | 台鋼天鷹 |
+| Taipei EST | 臺北伊斯特 |
+| Taoyuan Cloud Leopard Flyers | 桃園雲豹飛將 |
+
+## License
+
+For learning and personal use only. Data sourced from TPVL official website.
