@@ -4,7 +4,7 @@ OpenClaw skill for querying Taiwan Professional Volleyball League (TPVL) game re
 
 ## Features
 
-- ⚾ Game results with scores and set counts
+- 🏐 Game results with scores and set counts
 - 📅 Schedule query (upcoming and past)
 - 🏆 Standings (wins, losses, win rate, set records)
 - 📊 Player stats (placeholder - TPVL website not yet available)
@@ -43,10 +43,10 @@ clawhub install tpvl
 
 | Team | Chinese | Home City |
 |------|---------|-----------|
-| Taichung WinStreak | 臺中連莊 | 臺中市 |
-| TSG Hawks | 台鋼天鷹 | 高雄市 |
-| Taipei EST | 臺北伊斯特 | 臺北市 |
-| Taoyuan Cloud Leopard Flyers | 桃園雲豹飛將 | 桃園市 |
+| Taichung Win Streak | 臺中連莊 | 臺中市 |
+| TSG Hawks | 台鋼天鷹 | 臺南市 |
+| Taipei East Power | 臺北伊斯特 | 臺北市 |
+| Taoyuan Leopards | 桃園雲豹飛將 | 桃園市 |
 
 ## License
 
