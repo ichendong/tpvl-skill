@@ -43,8 +43,8 @@ clawhub install tpvl
 
 | Team | Chinese | Home City |
 |------|---------|-----------|
-| Taichung Win Streak | 臺中連莊 | 臺中市 |
-| TSG Hawks | 台鋼天鷹 | 臺南市 |
+| Taichung WinStreak | 臺中連莊 | 臺中市 |
+| TSG SkyHawks | 台鋼天鷹 | 臺南市/高雄市 |
 | Taipei East Power | 臺北伊斯特 | 臺北市 |
 | Taoyuan Leopards | 桃園雲豹飛將 | 桃園市 |
 
