@@ -41,12 +41,12 @@ clawhub install tpvl
 
 ## Teams
 
-| Team | Chinese |
-|------|---------|
-| Taichung Lien Zhuang | 臺中連莊 |
-| TSG Hawks | 台鋼天鷹 |
-| Taipei EST | 臺北伊斯特 |
-| Taoyuan Cloud Leopard Flyers | 桃園雲豹飛將 |
+| Team | Chinese | Home City |
+|------|---------|-----------|
+| Taichung WinStreak | 臺中連莊 | 臺中市 |
+| TSG Hawks | 台鋼天鷹 | 高雄市 |
+| Taipei EST | 臺北伊斯特 | 臺北市 |
+| Taoyuan Cloud Leopard Flyers | 桃園雲豹飛將 | 桃園市 |
 
 ## License
 
