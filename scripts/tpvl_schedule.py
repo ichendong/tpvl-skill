@@ -15,7 +15,6 @@ TPVL 賽程查詢
 import argparse
 import json
 import sys
-from datetime import datetime, date
 from pathlib import Path
 from typing import Optional
 
@@ -46,25 +45,17 @@ def query_schedule(
     # 從首頁取得未來賽程 + 最近已完賽
     pp = fetch_next_data(BASE_URL, 'homepage')
 
-    # 從賽程頁取得完整已完賽列表
-    schedule_pp = fetch_next_data(f'{BASE_URL}/schedule/schedule', 'schedule')
-    all_completed = schedule_pp.get('resultMatchData', {}).get('data', [])
-
     matches = []
 
-    # 合併資料來源
-    # 首頁的 scheduleMatches（未來賽程）
-    for m in pp.get('scheduleMatches', []):
-        matches.append(m)
+    # 首頁的 scheduleMatches（未來賽程）+ completedMatches（最近已完賽）
+    matches.extend(pp.get('scheduleMatches', []))
+    matches.extend(pp.get('completedMatches', []))
 
-    # 首頁的 completedMatches（最近 5 場已完賽）
-    for m in pp.get('completedMatches', []):
-        matches.append(m)
-
-    # 如果包含已完賽，加入完整列表
+    # 如果包含已完賽，從賽程頁取得完整列表
     if include_completed:
-        for m in all_completed:
-            matches.append(m)
+        schedule_pp = fetch_next_data(f'{BASE_URL}/schedule/schedule', 'schedule')
+        all_completed = schedule_pp.get('resultMatchData', {}).get('data', [])
+        matches.extend(all_completed)
 
     # 去重（用 id）
     seen = set()
@@ -78,7 +69,6 @@ def query_schedule(
 
     # 解析並過濾
     schedule = []
-    today = date.today().isoformat()
 
     for m in matches:
         parsed = parse_match(m)

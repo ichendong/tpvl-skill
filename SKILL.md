@@ -36,7 +36,7 @@ Query TPVL game results, schedules, and standings for the Taiwan Professional Vo
 | Game results | `tpvl_games.py` | TPVL `/schedule/schedule` page | ✅ |
 | Schedule | `tpvl_schedule.py` | TPVL homepage + schedule page | ✅ |
 | Standings | `tpvl_standings.py` | TPVL `/record` page | ✅ |
-| Player stats | `tpvl_stats.py` | ⚠️ Coming Soon | 🔜 |
+| Player stats | `tpvl_stats.py` | Auto-detects TPVL pages | 🔄 Auto-detect |
 
 ## Game Type Codes
 
@@ -50,7 +50,7 @@ Query TPVL game results, schedules, and standings for the Taiwan Professional Vo
 
 ## Player Stats
 
-⚠️ TPVL 官網導航列有「球員數據」和「各場數據」連結（路由 `/results/player-introduction`、`/results/competition-data`），但目前均回 404（Coming Soon）。`tpvl_stats.py` 已預留接口，待官網開放後接入。
+`tpvl_stats.py` 會自動偵測 TPVL 官網球員數據頁面是否可用（路由 `/results/player-introduction`、`/results/competition-data`）。若頁面已開放，將自動取得實際數據；若仍為 404 則回傳空資料。
 
 ## Quick Start
 
