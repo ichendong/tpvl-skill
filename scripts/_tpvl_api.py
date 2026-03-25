@@ -13,20 +13,28 @@ TPVL API 共用模組
 """
 
 import json
+import logging
 import re
+import time
 import requests
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+logger = logging.getLogger(__name__)
+
 # 快取設定
 CACHE_DIR = Path('/tmp/tpvl_cache')
 CACHE_TTL = timedelta(minutes=30)
 
+# 網路重試設定
+MAX_RETRIES = 3
+RETRY_DELAY = 2  # 秒
+
 BASE_URL = 'https://tpvl.tw'
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
 }
@@ -63,17 +71,24 @@ def _load_cache(key: str) -> Optional[dict]:
         return None
     try:
         data = json.loads(path.read_text())
-        cached_at = datetime.fromisoformat(data.get('_cached_at', '2000-01-01'))
-        if datetime.now() - cached_at < CACHE_TTL:
+        cached_at_str = data.get('_cached_at', '')
+        if not cached_at_str:
+            return None
+        cached_at = datetime.fromisoformat(cached_at_str)
+        # 確保時區一致比較
+        now = datetime.now(tz=TST)
+        if cached_at.tzinfo is None:
+            cached_at = cached_at.replace(tzinfo=TST)
+        if now - cached_at < CACHE_TTL:
             return data
-    except Exception:
-        pass
+    except (ValueError, OSError) as exc:
+        logger.debug('快取讀取失敗 (%s): %s', key, exc)
     return None
 
 
 def _save_cache(key: str, data: dict):
     """儲存快取資料"""
-    data['_cached_at'] = datetime.now().isoformat()
+    data['_cached_at'] = datetime.now(tz=TST).isoformat()
     _get_cache_path(key).write_text(json.dumps(data, ensure_ascii=False))
 
 
@@ -87,17 +102,35 @@ def fetch_next_data(url: str, cache_key: str) -> dict:
 
     Returns:
         pageProps 內容
+
+    Raises:
+        ValueError: 無法從頁面提取 __NEXT_DATA__
+        requests.RequestException: 網路請求失敗（已重試）
     """
     # 檢查快取
     cached = _load_cache(cache_key)
     if cached:
         return cached
 
-    resp = requests.get(url, headers=HEADERS, timeout=15)
-    resp.raise_for_status()
+    # 帶重試的網路請求
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=15)
+            resp.raise_for_status()
+            break
+        except requests.RequestException as exc:
+            if attempt < MAX_RETRIES:
+                logger.warning('請求失敗 (第 %d 次): %s — %s 秒後重試', attempt, exc, RETRY_DELAY)
+                time.sleep(RETRY_DELAY)
+            else:
+                raise
 
-    # 從 HTML 中提取 __NEXT_DATA__
-    match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', resp.text)
+    # 從 HTML 中提取 __NEXT_DATA__（使用 DOTALL 以相容多行 JSON）
+    match = re.search(
+        r'<script\s+id="__NEXT_DATA__"\s+type="application/json">(.*?)</script>',
+        resp.text,
+        re.DOTALL,
+    )
     if not match:
         raise ValueError(f'無法從頁面提取 __NEXT_DATA__: {url}')
 
@@ -141,6 +174,9 @@ def get_team_name(squad_id: int) -> str:
 
 def parse_match(match: dict) -> dict:
     """將比賽資料轉換為統一格式"""
+    home_squad_id = match.get('homeSquadId')
+    away_squad_id = match.get('awaySquadId')
+
     result = {
         'id': match.get('id'),
         'code': match.get('code'),
@@ -148,8 +184,8 @@ def parse_match(match: dict) -> dict:
         'date': '',
         'time': '',
         'venue': match.get('venue', ''),
-        'home_team': get_team_name(match.get('homeSquadId')),
-        'away_team': get_team_name(match.get('awaySquadId')),
+        'home_team': get_team_name(home_squad_id),
+        'away_team': get_team_name(away_squad_id),
         'home_score': None,
         'away_score': None,
         'home_sets': None,
@@ -165,16 +201,16 @@ def parse_match(match: dict) -> dict:
             result['date'] = local[:10]
             result['time'] = local[11:16]
 
-    # 比分（從 squadMatchResults 提取）
+    # 比分（從 squadMatchResults 提取，處理主客隊雙方）
     smr = match.get('squadMatchResults', [])
-    if smr:
-        for r in smr:
-            if r.get('squadId') == match.get('homeSquadId'):
-                result['home_sets'] = r.get('wonRounds')
-                result['away_sets'] = r.get('lostRounds')
-                result['home_score'] = r.get('wonScore')
-                result['away_score'] = r.get('lostScore')
-                break
+    for r in smr:
+        squad_id = r.get('squadId')
+        if squad_id == home_squad_id:
+            result['home_sets'] = r.get('wonRounds')
+            result['home_score'] = r.get('wonScore')
+        elif squad_id == away_squad_id:
+            result['away_sets'] = r.get('wonRounds')
+            result['away_score'] = r.get('wonScore')
 
     return result
 
