@@ -211,6 +211,8 @@ def parse_match(match: dict) -> dict:
         elif squad_id == away_squad_id:
             result['away_sets'] = r.get('wonRounds')
             result['away_score'] = r.get('wonScore')
+        if result['home_sets'] is not None and result['away_sets'] is not None:
+            break
 
     return result
 

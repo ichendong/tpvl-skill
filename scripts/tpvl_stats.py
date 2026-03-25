@@ -76,11 +76,12 @@ def query_stats(
     results = []
     team_name = resolve_team(team) if team else None
     for p in players:
-        if team_name and p.get('team', p.get('squadName', '')) != team_name:
+        p_team = p.get('team', p.get('squadName', ''))
+        if team_name and p_team != team_name:
             continue
         results.append({
             'name': p.get('name', p.get('playerName', '')),
-            'team': p.get('team', p.get('squadName', '')),
+            'team': p_team,
             'category': category or '得分',
             'value': p.get(category, p.get('points', 0)),
         })
