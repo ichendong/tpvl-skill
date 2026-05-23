@@ -132,8 +132,9 @@ def main():
                 return
             print(f"找到 {len(games)} 場比賽:\n")
             for g in games:
-                sets = f"({g['home_sets']}:{g['away_sets']})" if g['home_sets'] is not None else ''
-                score = f"{g['home_score']}:{g['away_score']} {sets}" if g['home_score'] else ''
+                # 顯示格式：客隊 vs 主隊 客隊分數:主隊分數 (客隊局數:主隊局數)
+                sets = f"({g['away_sets']}:{g['home_sets']})" if g['home_sets'] is not None else ''
+                score = f"{g['away_score']}:{g['home_score']} {sets}" if g['home_score'] else ''
                 print(f"[{g['date']}] {g['away_team']} vs {g['home_team']} {score} @ {g['venue']}")
 
     except Exception as e:
